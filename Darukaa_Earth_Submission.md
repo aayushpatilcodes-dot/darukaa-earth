@@ -19,8 +19,8 @@ This document serves as the official **Submission Deliverable** adhering to all 
 | Deliverable | Details / Links | Status |
 | :--- | :--- | :--- |
 | **GitHub Repository** | [`aayushpatilcodes-dot/darukaa-earth`](https://github.com/aayushpatilcodes-dot/darukaa-earth.git) | **Complete & Verified** |
-| **Frontend Deployment** | Live on Vercel (`frontend` root directory) | **Deployed** |
-| **Backend API** | Live on Render / Hugging Face / Koyeb (FastAPI + Docker) | **Deployed** |
+| **Frontend Deployment** | [`https://darukaa-earth.vercel.app`](https://darukaa-earth.vercel.app) | **Live URL (Vercel)** |
+| **Backend API** | [`https://darukaa-backend.onrender.com`](https://darukaa-backend.onrender.com) | **Live URL (Render)** |
 | **Database** | Aiven PostgreSQL 16 with native PostGIS 3.4 | **Active** |
 | **CI/CD Pipeline** | GitHub Actions (`.github/workflows/ci.yml`) | **Green / Passing** |
 | **Pre-commit Hooks** | Husky + lint-staged (Ruff, Black, ESLint, Prettier) | **Active** |
