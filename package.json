@@ -1,0 +1,13 @@
+{
+  "name": "darukaa-earth",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Root tooling for Darukaa.Earth — pre-commit hooks that enforce code quality across the frontend and backend before every commit.",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10"
+  }
+}

@@ -1,0 +1,27 @@
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+frontend/.env
+npm-debug.log*
+
+# --- Python / backend ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+backend/.env
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+.coverage
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+
+# --- Env files ---
+.env
+.env.local

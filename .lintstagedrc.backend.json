@@ -1,0 +1,3 @@
+{
+  "*.py": ["black", "ruff check --fix"]
+}

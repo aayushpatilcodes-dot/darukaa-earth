@@ -1,0 +1,31 @@
+name: Deploy
+
+# Render and Vercel both auto-deploy on push once the repo is connected to
+# them (see README > Deployment), so this workflow's job is to fire their
+# deploy hooks *after* CI has passed on main — giving us a gate that a
+# broken build never reaches production. If RENDER_DEPLOY_HOOK_URL or
+# VERCEL_DEPLOY_HOOK_URL secrets aren't set, that step is skipped rather
+# than failing, so this workflow is safe to merge before secrets exist.
+on:
+  workflow_run:
+    workflows: ["CI"]
+    branches: [main]
+    types: [completed]
+
+jobs:
+  deploy:
+    name: Trigger production deploys
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Trigger Render backend deploy
+        if: ${{ env.RENDER_DEPLOY_HOOK_URL != '' }}
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+
+      - name: Trigger Vercel frontend deploy
+        if: ${{ env.VERCEL_DEPLOY_HOOK_URL != '' }}
+        env:
+          VERCEL_DEPLOY_HOOK_URL: ${{ secrets.VERCEL_DEPLOY_HOOK_URL }}
+        run: curl -fsS -X POST "$VERCEL_DEPLOY_HOOK_URL"

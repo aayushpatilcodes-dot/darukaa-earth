@@ -1,0 +1,2 @@
+npx lint-staged --config .lintstagedrc.frontend.json --cwd frontend
+npx lint-staged --config .lintstagedrc.backend.json --cwd backend
