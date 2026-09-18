@@ -57,6 +57,14 @@ export async function createProject(
   return data;
 }
 
+export async function updateProject(
+  projectId: string,
+  updates: Partial<{ name: string; description: string; project_type: ProjectType }>,
+): Promise<Project> {
+  const { data } = await apiClient.patch<Project>(`/api/projects/${projectId}`, updates);
+  return data;
+}
+
 export async function deleteProject(projectId: string): Promise<void> {
   await apiClient.delete(`/api/projects/${projectId}`);
 }
@@ -83,6 +91,18 @@ export async function createSite(
 export async function getSite(siteId: string): Promise<SiteWithMetrics> {
   const { data } = await apiClient.get<SiteWithMetrics>(`/api/sites/${siteId}`);
   return data;
+}
+
+export async function updateSite(
+  siteId: string,
+  updates: Partial<{ name: string; description: string }>,
+): Promise<Site> {
+  const { data } = await apiClient.patch<Site>(`/api/sites/${siteId}`, updates);
+  return data;
+}
+
+export async function deleteSite(siteId: string): Promise<void> {
+  await apiClient.delete(`/api/sites/${siteId}`);
 }
 
 export async function getSiteMetrics(siteId: string): Promise<SiteMetric[]> {

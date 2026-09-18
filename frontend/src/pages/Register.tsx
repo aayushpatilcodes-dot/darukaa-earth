@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/useAuth";
 
 export function Register() {
@@ -20,10 +21,7 @@ export function Register() {
       await register(email, fullName, password);
       navigate("/");
     } catch (err) {
-      const message =
-        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
-        "Registration failed. Please try again.";
-      setError(message);
+      setError(getErrorMessage(err, "Registration failed. Please try again."));
     } finally {
       setIsSubmitting(false);
     }

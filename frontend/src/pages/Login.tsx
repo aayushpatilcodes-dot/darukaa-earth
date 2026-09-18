@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/useAuth";
 
 export function Login() {
@@ -18,8 +19,8 @@ export function Login() {
     try {
       await login(email, password);
       navigate("/");
-    } catch {
-      setError("Invalid email or password.");
+    } catch (err) {
+      setError(getErrorMessage(err, "Invalid email or password."));
     } finally {
       setIsSubmitting(false);
     }

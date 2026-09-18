@@ -1,17 +1,20 @@
 import { useState, type FormEvent } from "react";
 
-import { createProject } from "../api/endpoints";
+import { createProject, updateProject } from "../api/endpoints";
+import { getErrorMessage } from "../api/client";
 import type { Project, ProjectType } from "../types";
 
 interface Props {
+  project?: Project;
   onClose: () => void;
-  onCreated: (project: Project) => void;
+  onSaved: (project: Project) => void;
 }
 
-export function NewProjectModal({ onClose, onCreated }: Props) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [projectType, setProjectType] = useState<ProjectType>("mixed");
+export function ProjectFormModal({ project, onClose, onSaved }: Props) {
+  const isEditing = Boolean(project);
+  const [name, setName] = useState(project?.name ?? "");
+  const [description, setDescription] = useState(project?.description ?? "");
+  const [projectType, setProjectType] = useState<ProjectType>(project?.project_type ?? "mixed");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -20,10 +23,13 @@ export function NewProjectModal({ onClose, onCreated }: Props) {
     setError(null);
     setIsSubmitting(true);
     try {
-      const project = await createProject(name, description, projectType);
-      onCreated(project);
-    } catch {
-      setError("Could not create project. Please try again.");
+      const saved =
+        isEditing && project
+          ? await updateProject(project.id, { name, description, project_type: projectType })
+          : await createProject(name, description, projectType);
+      onSaved(saved);
+    } catch (err) {
+      setError(getErrorMessage(err, "Could not save this project. Please try again."));
     } finally {
       setIsSubmitting(false);
     }
@@ -32,7 +38,7 @@ export function NewProjectModal({ onClose, onCreated }: Props) {
   return (
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={(e) => e.stopPropagation()}>
-        <h2>New project</h2>
+        <h2>{isEditing ? "Edit project" : "New project"}</h2>
         {error && <div className="error-banner">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="field">
@@ -72,7 +78,7 @@ export function NewProjectModal({ onClose, onCreated }: Props) {
               Cancel
             </button>
             <button type="submit" className="btn btn-primary" disabled={isSubmitting || !name}>
-              {isSubmitting ? "Creating…" : "Create project"}
+              {isSubmitting ? "Saving…" : isEditing ? "Save changes" : "Create project"}
             </button>
           </div>
         </form>

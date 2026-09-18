@@ -46,6 +46,11 @@ class SiteCreate(BaseModel):
     geometry: GeoJSONPolygon
 
 
+class SiteUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = None
+
+
 class SiteOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -63,6 +68,12 @@ class ProjectCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
     description: str | None = None
     project_type: ProjectType = ProjectType.mixed
+
+
+class ProjectUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = None
+    project_type: ProjectType | None = None
 
 
 class ProjectOut(BaseModel):

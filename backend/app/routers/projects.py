@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.auth import get_current_user
 from app.database import get_db
 from app.models import Project, User
-from app.schemas import ProjectCreate, ProjectDetailOut, ProjectOut
+from app.schemas import ProjectCreate, ProjectDetailOut, ProjectOut, ProjectUpdate
 from app.serializers import project_to_out, site_to_out
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
@@ -57,10 +57,38 @@ def get_project(
     if not project:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
-    detail = ProjectDetailOut.model_validate(project)
-    detail.site_count = len(project.sites)
-    detail.sites = [site_to_out(s) for s in project.sites]
-    return detail
+    return ProjectDetailOut(
+        **project_to_out(project).model_dump(),
+        sites=[site_to_out(s) for s in project.sites],
+    )
+
+
+@router.patch("/{project_id}", response_model=ProjectOut)
+def update_project(
+    project_id: str,
+    payload: ProjectUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectOut:
+    project = (
+        db.query(Project)
+        .options(selectinload(Project.sites))
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    if payload.name is not None:
+        project.name = payload.name
+    if payload.description is not None:
+        project.description = payload.description
+    if payload.project_type is not None:
+        project.project_type = payload.project_type
+
+    db.commit()
+    db.refresh(project)
+    return project_to_out(project)
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { fetchCurrentUser, login as apiLogin, register as apiRegister } from "../api/endpoints";
-import { clearToken, getToken, setToken } from "../api/client";
+import { clearToken, getToken, setToken, UNAUTHORIZED_EVENT } from "../api/client";
 import type { User } from "../types";
 import { AuthContext } from "./authContextValue";
 
@@ -19,6 +19,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .then(setUser)
       .catch(() => clearToken())
       .finally(() => setIsLoading(false));
+  }, []);
+
+  useEffect(() => {
+    function handleUnauthorized() {
+      setUser(null);
+    }
+    window.addEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => window.removeEventListener(UNAUTHORIZED_EVENT, handleUnauthorized);
   }, []);
 
   async function login(email: string, password: string) {

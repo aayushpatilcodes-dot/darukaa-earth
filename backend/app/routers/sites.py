@@ -9,7 +9,7 @@ from app.auth import get_current_user
 from app.database import get_db
 from app.geo import geojson_to_wkb, polygon_area_hectares
 from app.models import MetricType, Project, Site, SiteMetric, User
-from app.schemas import SiteCreate, SiteMetricOut, SiteOut, SiteWithMetricsOut
+from app.schemas import SiteCreate, SiteMetricOut, SiteOut, SiteUpdate, SiteWithMetricsOut
 from app.serializers import site_to_out
 
 router = APIRouter(prefix="/api", tags=["sites"])
@@ -110,6 +110,50 @@ def get_site(
         SiteMetricOut.model_validate(m) for m in sorted(site.metrics, key=lambda m: m.recorded_on)
     ]
     return SiteWithMetricsOut(**base.model_dump(), metrics=metrics)
+
+
+@router.patch("/sites/{site_id}", response_model=SiteOut)
+def update_site(
+    site_id: str,
+    payload: SiteUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SiteOut:
+    site = (
+        db.query(Site)
+        .join(Project, Site.project_id == Project.id)
+        .filter(Site.id == site_id, Project.owner_id == current_user.id)
+        .first()
+    )
+    if not site:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site not found")
+
+    if payload.name is not None:
+        site.name = payload.name
+    if payload.description is not None:
+        site.description = payload.description
+
+    db.commit()
+    db.refresh(site)
+    return site_to_out(site)
+
+
+@router.delete("/sites/{site_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_site(
+    site_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> None:
+    site = (
+        db.query(Site)
+        .join(Project, Site.project_id == Project.id)
+        .filter(Site.id == site_id, Project.owner_id == current_user.id)
+        .first()
+    )
+    if not site:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Site not found")
+    db.delete(site)
+    db.commit()
 
 
 @router.get("/sites/{site_id}/metrics", response_model=list[SiteMetricOut])
